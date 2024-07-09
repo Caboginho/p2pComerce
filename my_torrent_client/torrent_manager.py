@@ -22,6 +22,9 @@ class TorrentManager:
     def get_peers(self):
         return self.peer_manager.get_peers()
 
+    def get_downloaded_pieces(self):
+        return self.piece_manager.get_downloaded_pieces()
+
     def start_download(self):
         print(f"Starting download for {self.torrent_file}")
         self.update_piece_rarity()
@@ -104,7 +107,7 @@ if __name__ == "__main__":
         print(message)
 
     torrent_manager = TorrentManager("exemplo.torrent", 10, update_ui_callback)
-    torrent_manager.add_peer("192.168.1.1", 6881)
-    torrent_manager.add_peer("192.168.1.1", 6882)
+    torrent_manager.add_peer("localhost", 6881)
+    torrent_manager.add_peer("localhost", 6882)
     torrent_manager.start_download()
     torrent_manager.start_upload()
