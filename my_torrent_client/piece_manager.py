@@ -10,3 +10,5 @@ class PieceManager:
     def get_missing_pieces(self):
         # Retorna uma lista de peças que ainda não foram baixadas
         return [piece for piece in self.pieces if not piece['downloaded']]
+ 
+ 
