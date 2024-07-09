@@ -57,7 +57,7 @@ class TorrentManager:
 # Testando o TorrentManager
 if __name__ == "__main__":
     torrent_manager = TorrentManager("example.torrent", 10)
-    torrent_manager.add_peer("localhost", 6881)
-    torrent_manager.add_peer("localhost", 6882)
+    torrent_manager.add_peer("localhost", 8000)
+    torrent_manager.add_peer("localhost", 8080)
     torrent_manager.start_download()
     torrent_manager.start_upload()

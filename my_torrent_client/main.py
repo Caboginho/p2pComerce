@@ -17,7 +17,7 @@ def main():
     torrent_manager.start_download()
 
     # Adiciona peers para testar
-    peer1 = Peer("192.168.1.1", 6881)
+    peer1 = Peer("192.168.1.1", 8080)
     peer_manager.add_peer(peer1)
     torrent_manager.add_peer(peer1)
 

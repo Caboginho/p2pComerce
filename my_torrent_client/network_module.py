@@ -48,7 +48,7 @@ class NetworkModule:
 # Testando o Network Module
 if __name__ == "__main__":
     network_module = NetworkModule()
-    if network_module.connect_to_peer("localhost", 6881):
-        network_module.send_data("localhost", 6881, "Hello, peer!")
-        network_module.receive_data("localhost", 6881)
-        network_module.disconnect_from_peer("localhost", 6881)
+    if network_module.connect_to_peer("localhost", 8080):
+        network_module.send_data("localhost", 8080, "Hello, peer!")
+        network_module.receive_data("localhost", 8080)
+        network_module.disconnect_from_peer("localhost", 8080)
