@@ -19,56 +19,51 @@ class TorrentClientUI:
         self.torrent_entry = tk.Entry(self.root)
         self.torrent_entry.grid(row=0, column=1, padx=10, pady=10)
 
+        self.start_server_button = tk.Button(self.root, text="Start Server", command=self.start_server)
+        self.start_server_button.grid(row=1, column=0, padx=10, pady=10)
+
         self.add_peer_button = tk.Button(self.root, text="Add Peer", command=self.add_peer)
-        self.add_peer_button.grid(row=1, column=0, padx=10, pady=10)
+        self.add_peer_button.grid(row=1, column=1, padx=10, pady=10)
 
         self.remove_peer_button = tk.Button(self.root, text="Remove Peer", command=self.remove_peer)
-        self.remove_peer_button.grid(row=1, column=1, padx=10, pady=10)
+        self.remove_peer_button.grid(row=1, column=2, padx=10, pady=10)
+
+        self.search_peers_button = tk.Button(self.root, text="Search Peers", command=self.search_peers)
+        self.search_peers_button.grid(row=1, column=3, padx=10, pady=10)
 
         self.start_download_button = tk.Button(self.root, text="Start Download", command=self.start_download)
-        self.start_download_button.grid(row=1, column=2, padx=10, pady=10)
+        self.start_download_button.grid(row=2, column=0, padx=10, pady=10)
 
         self.start_upload_button = tk.Button(self.root, text="Start Upload", command=self.start_upload)
-        self.start_upload_button.grid(row=1, column=3, padx=10, pady=10)
+        self.start_upload_button.grid(row=2, column=1, padx=10, pady=10)
 
         self.log_text = tk.Text(self.root, state='disabled', width=80, height=20)
-        self.log_text.grid(row=2, column=0, columnspan=4, padx=10, pady=10)
-
-        self.progress_label = tk.Label(self.root, text="Progress:")
-        self.progress_label.grid(row=3, column=0, padx=10, pady=10)
+        self.log_text.grid(row=3, column=0, columnspan=4, padx=10, pady=10)
 
         self.progress_bar = tk.Canvas(self.root, width=300, height=20, bg='white')
-        self.progress_bar.grid(row=3, column=1, columnspan=3, padx=10, pady=10)
+        self.progress_bar.grid(row=4, column=0, columnspan=4, padx=10, pady=10)
+
+        self.peers_listbox = tk.Listbox(self.root, width=40, height=10)
+        self.peers_listbox.grid(row=5, column=0, columnspan=2, padx=10, pady=10)
+        self.peers_listbox.bind('<Double-1>', self.show_peer_details)
+
+        self.pieces_listbox = tk.Listbox(self.root, width=40, height=10)
+        self.pieces_listbox.grid(row=5, column=2, columnspan=2, padx=10, pady=10)
+
+        self.uploaded_pieces_listbox = tk.Listbox(self.root, width=40, height=10)
+        self.uploaded_pieces_listbox.grid(row=6, column=0, columnspan=4, padx=10, pady=10)
+
         self.progress = 0
 
-        self.peers_label = tk.Label(self.root, text="Connected Peers:")
-        self.peers_label.grid(row=4, column=0, padx=10, pady=10)
-
-        self.peers_listbox = tk.Listbox(self.root, width=50, height=10)
-        self.peers_listbox.grid(row=4, column=1, columnspan=3, padx=10, pady=10)
-        self.peers_listbox.bind('<<ListboxSelect>>', self.show_peer_details)
-
-        self.pieces_label = tk.Label(self.root, text="Downloaded Pieces:")
-        self.pieces_label.grid(row=5, column=0, padx=10, pady=10)
-
-        self.pieces_listbox = tk.Listbox(self.root, width=50, height=10)
-        self.pieces_listbox.grid(row=5, column=1, columnspan=3, padx=10, pady=10)
-
-        self.uploaded_pieces_label = tk.Label(self.root, text="Uploaded Pieces:")
-        self.uploaded_pieces_label.grid(row=6, column=0, padx=10, pady=10)
-
-        self.uploaded_pieces_listbox = tk.Listbox(self.root, width=50, height=10)
-        self.uploaded_pieces_listbox.grid(row=6, column=1, columnspan=3, padx=10, pady=10)
-
-        self.update_peers_list()
-        self.update_pieces_list()
-        self.update_uploaded_pieces_list()
+    def start_server(self):
+        self.log_message("Starting server...")
+        server_thread = threading.Thread(target=self.torrent_manager.start_server)
+        server_thread.start()
 
     def add_peer(self):
-        peer_ip = "localhost"  # Ajuste conforme necessário
-        peer_port = 6881  # Ajuste conforme necessário
-        self.torrent_manager.add_peer(peer_ip, peer_port)
-        self.log_message(f"Added peer {peer_ip}:{peer_port}")
+        ip = "127.0.0.1"  # Placeholder IP, replace with actual input
+        port = 6881       # Placeholder port, replace with actual input
+        self.torrent_manager.add_peer(ip, port)
         self.update_peers_list()
 
     def remove_peer(self):
@@ -77,10 +72,12 @@ class TorrentClientUI:
             peer_info = self.peers_listbox.get(selected_peer)
             ip, port = peer_info.split(':')
             self.torrent_manager.remove_peer(ip, int(port))
-            self.log_message(f"Removed peer {peer_info}")
             self.update_peers_list()
-        else:
-            messagebox.showwarning("Warning", "No peer selected to remove")
+
+    def search_peers(self):
+        self.log_message("Searching for peers...")
+        search_thread = threading.Thread(target=self.torrent_manager.search_peers)
+        search_thread.start()
 
     def start_download(self):
         torrent_file = self.torrent_entry.get()
@@ -106,10 +103,8 @@ class TorrentClientUI:
         self.log_message(message)
         if "Downloaded piece" in message or "Uploaded piece" in message:
             self.progress += 1
-        else:
-            self.progress = 0    
-        self.progress_bar.delete("progress")
-        self.progress_bar.create_rectangle(0, 0, self.progress * 30, 20, fill='blue', tags="progress")
+            self.progress_bar.delete("progress")
+            self.progress_bar.create_rectangle(0, 0, self.progress * 30, 20, fill='blue', tags="progress")
 
     def update_peers_list(self):
         self.peers_listbox.delete(0, tk.END)
@@ -121,7 +116,7 @@ class TorrentClientUI:
         self.pieces_listbox.delete(0, tk.END)
         pieces = self.torrent_manager.get_downloaded_pieces()
         for piece in pieces:
-            self.pieces_listbox.insert(tk.END, f"Piece {piece['index']}")
+            self.pieces_listbox.insert(tk.END, f"Piece {piece['index']} - Verified: {'Yes' if piece.get('verified') else 'No'}")
 
     def update_uploaded_pieces_list(self):
         self.uploaded_pieces_listbox.delete(0, tk.END)
@@ -139,11 +134,12 @@ class TorrentClientUI:
 # Testando a interface de usuário
 if __name__ == "__main__":
     root = tk.Tk()
-    torrent_manager = TorrentManager("exemplo.torrent", 10, update_ui_callback=None)
+    torrent_manager = TorrentManager("example.torrent", 10, update_ui_callback=None)
     app = TorrentClientUI(root, torrent_manager)
 
     def update_ui_callback(message):
         app.update_progress(message)
+        app.update_peers_list()
         app.update_pieces_list()
         app.update_uploaded_pieces_list()
 
