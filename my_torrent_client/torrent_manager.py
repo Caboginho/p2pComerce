@@ -2,14 +2,13 @@
 import random
 from peer_manager import PeerManager
 from piece_manager import PieceManager
-from network_module import NetworkModule
+from peer_connection import PeerConnection
 
 class TorrentManager:
     def __init__(self, torrent_file, num_pieces):
         self.torrent_file = torrent_file
         self.peer_manager = PeerManager()
         self.piece_manager = PieceManager(num_pieces)
-        self.network_module = NetworkModule()
 
     def add_peer(self, ip, port):
         self.peer_manager.add_peer(ip, port)
@@ -31,28 +30,29 @@ class TorrentManager:
 
         # Escolhe um peer aleatório para baixar a peça
         peer = random.choice(peers)
-        if not peer.is_connected:
-            self.peer_manager.connect_peer(peer.ip, peer.port)
-        print(f"Downloading piece {piece_index} from peer {peer}")
-        # Simula o download da peça
-        piece_data = f"Data for piece {piece_index}".encode()  # Simulando dados da peça
-        self.piece_manager.mark_piece_as_downloaded(piece_index, piece_data)
+        peer_conn = PeerConnection(peer.ip, peer.port)
+        peer_conn.connect()
+        peer_conn.send_message(f"REQUEST_PIECE {piece_index}")
+        piece_data = peer_conn.receive_message()
+        self.piece_manager.mark_piece_as_downloaded(piece_index, piece_data.encode())
+        peer_conn.close()
 
     def start_upload(self):
         print(f"Starting upload for {self.torrent_file}")
         peers = self.peer_manager.get_peers()
         for peer in peers:
-            if not peer.is_connected:
-                self.peer_manager.connect_peer(peer.ip, peer.port)
-            self.upload_to_peer(peer)
+            peer_conn = PeerConnection(peer.ip, peer.port)
+            peer_conn.connect()
+            self.upload_to_peer(peer_conn)
+            peer_conn.close()
 
-    def upload_to_peer(self, peer):
+    def upload_to_peer(self, peer_conn):
         downloaded_pieces = self.piece_manager.get_downloaded_pieces()
         for piece in downloaded_pieces:
             data = piece['data']
             piece_index = piece['index']
-            self.network_module.send_data(peer.ip, peer.port, data)
-            print(f"Uploaded piece {piece_index} to peer {peer}")
+            peer_conn.send_message(f"PIECE_DATA {piece_index} {data.decode()}")
+            print(f"Uploaded piece {piece_index} to peer {peer_conn.ip}:{peer_conn.port}")
 
 # Testando o TorrentManager
 if __name__ == "__main__":
