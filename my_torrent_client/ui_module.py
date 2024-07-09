@@ -13,5 +13,5 @@ class UIModule:
 # Testando o UI Module
 if __name__ == "__main__":
     ui_module = UIModule()
-    ui_module.add_torrent("example.torrent")
+    ui_module.add_torrent("exemplo.torrent")
     ui_module.display_progress(50)

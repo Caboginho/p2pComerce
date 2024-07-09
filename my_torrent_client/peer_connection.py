@@ -36,7 +36,7 @@ class PeerConnection:
 
 # Testando a PeerConnection
 if __name__ == "__main__":
-    peer_conn = PeerConnection("localhost", 8080)
+    peer_conn = PeerConnection("192.168.1.1", 6881)
     peer_conn.connect()
     peer_conn.send_message("Hello, peer!")
     response = peer_conn.receive_message()

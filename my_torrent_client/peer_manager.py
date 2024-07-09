@@ -56,11 +56,11 @@ class PeerManager:
 # Testando o PeerManager
 if __name__ == "__main__":
     peer_manager = PeerManager()
-    peer_manager.add_peer("localhost", 6881)
-    peer_manager.add_peer("localhost", 6882)
+    peer_manager.add_peer("192.168.1.1", 6881)
+    peer_manager.add_peer("192.168.1.1", 6882)
     print("Current peers:", peer_manager.get_peers())
 
-    peer_manager.connect_peer("localhost", 6881)
-    peer_manager.disconnect_peer("localhost", 6881)
-    peer_manager.remove_peer("localhost", 6881)
+    peer_manager.connect_peer("192.168.1.1", 6881)
+    peer_manager.disconnect_peer("192.168.1.1", 6881)
+    peer_manager.remove_peer("192.168.1.1", 6881)
     print("Current peers:", peer_manager.get_peers())
