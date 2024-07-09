@@ -1,10 +1,2 @@
 myenv/
 __pycache__/
-.my_torrent_client/
-.main./
-.peer_manager.py/
-.torrent_manager.py/
-.piece_manager.py/
-.network_module.py/
-.ui_module.py/
-.utils.py/
